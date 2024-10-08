@@ -17,7 +17,7 @@ CabutKost adalah sebuah website berbasis Laravel yang menawarkan layanan jasa pi
 - **Autentikasi (Admin Only)**: Laravel Breeze (atau Laravel Fortify untuk keamanan lebih tinggi).
 
 ## Persyaratan Sistem
-- PHP >= 8.1
+- PHP >= 8.2
 - Composer
 - MySQL
 - Node.js & npm (untuk pengembangan front-end)
