@@ -10,7 +10,7 @@ CabutKost adalah sebuah website berbasis Laravel yang menawarkan layanan jasa pi
 - **Integrasi Pembayaran**: Dukungan untuk berbagai metode pembayaran yang aman dan mudah.
 
 ## Teknologi yang Digunakan
-- **Framework**: Laravel 10
+- **Framework**: Laravel 11
 - **Database**: MySQL
 - **Front-end**: Blade, Bootstrap, React
 - **API**: RESTful API untuk komunikasi antara client dan server.
