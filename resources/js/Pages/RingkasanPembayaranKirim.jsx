@@ -34,7 +34,7 @@ const RingkasanPembayaranKirim = () => {
                 }
                 return prevCount - 1;
             });
-        }, 10000);
+        }, 1000);
 
         return () => clearInterval(timer);
     });

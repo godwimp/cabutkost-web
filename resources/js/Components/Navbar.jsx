@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import NavLink from './NavLink';
 
-const LogoImg = "images/logo.jpeg";
+const LogoImg = "images/logo.png";
 
 const Navbar = () => {
     const { isOpen, setIsOpen } = useState(false);

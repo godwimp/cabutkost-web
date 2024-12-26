@@ -19,7 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         ]);
-
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\EnsureIsAdmin::class
+        ]);
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {
