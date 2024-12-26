@@ -108,7 +108,7 @@ Route::post('/track/search', [TrackController::class, 'search'])->name('track.se
 // Authentication routes
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
-        return Inertia::render('admin/Dashboard');
+        return Inertia::render('Admin/Dashboard');
     })->name('dashboard');
 
     Route::controller(ProfileController::class)->group(function () {

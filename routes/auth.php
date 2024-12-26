@@ -9,6 +9,10 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Admin\PindahanController;
+use App\Http\Controllers\BarangTitipanController;
+use App\Http\Controllers\PenitipController;
+use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -30,6 +34,27 @@ Route::middleware('guest')->group(function () {
         ->name('password.store');
 });
 
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    // Admin Dashboard
+    Route::get('/dashboard', function () {
+        return Inertia::render('Admin/Dashboard');
+    })->name('admin.dashboard');
+
+    // Pindahan Management
+    Route::get('/pindahan', [PindahanController::class, 'index'])
+        ->name('admin.pindahan');
+    Route::post('/pindahan/update-status', [PindahanController::class, 'updateStatus'])
+        ->name('admin.pindahan.update-status');
+    Route::get('/pindahan/{id}', [PindahanController::class, 'show'])
+        ->name('admin.pindahan.show');
+    
+    // Penitipan Management
+    Route::get('/penitipan', [PenitipController::class, 'index'])
+        ->name('admin.penitipan');
+    Route::post('/penitipan/update-status', [BarangTitipanController::class, 'updateStatus'])
+        ->name('admin.penitipan.update-status');
+});
+
 Route::middleware('auth')->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');
@@ -47,15 +72,9 @@ Route::middleware('auth')->group(function () {
 
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
 
-    Route::put('password', [PasswordController::class, 'update'])->name('password.update');
+    Route::put('password', [PasswordController::class, 'update'])
+        ->name('password.update');
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
-});
-
-Route::middleware(['auth', 'admin'])->group(function() {
-    Route::get('register', [RegisteredUserController::class, 'create'])
-        ->name('register');
-
-    Route::post('register', [RegisteredUserController::class, 'store']);
 });

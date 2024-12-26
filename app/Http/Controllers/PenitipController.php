@@ -11,7 +11,13 @@ class PenitipController extends Controller
 {
     public function index()
     {
-        return Inertia::render('DetailPenitip');
+        $penitipan = Penitip::with(['barangTitipan' => function ($query) {
+            $query->select('id', 'penitip_id', 'deskripsi_barang', 'status');
+        }])->get();
+
+        return Inertia::render('Admin/ManagePenitipan', [
+            'penitipan' => $penitipan,
+        ]);
     }
 
     public function store(Request $request)
@@ -55,5 +61,10 @@ class PenitipController extends Controller
                 'message' => 'Penitip tidak ditemukan',
             ], 404);
         }
+    }
+
+    public function getPenitipanData() {
+        $penitipan = Penitip::with('barangTitipan')->get();
+        return response()->json($penitipan);
     }
 }

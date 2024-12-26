@@ -10,7 +10,7 @@ export const ShippingCalculator = ({ isMobile = false }) => {
     return (
         <div className={isMobile ? "block mt-8" : ""}>
             <div className="text-2xl font-bold mb-4">
-                Hitung perkiraan harga untuk pengiriman Anda disini:
+                Klik disini untuk hitung perkiraan harga dan tracking barang Anda:
             </div>
             <button
                 onClick={handleSearch}
