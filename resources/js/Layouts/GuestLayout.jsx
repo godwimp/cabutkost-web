@@ -1,9 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Toaster } from 'react-hot-toast';
 import { Link } from '@inertiajs/react';
 
 export default function GuestLayout({ children }) {
     return (
+        <>
+        <Toaster position='top-right' />
         <div className="min-h-screen bg-gray-100">
             {/* Guest Navigation */}
             <nav className="bg-white shadow-sm">
@@ -24,7 +27,7 @@ export default function GuestLayout({ children }) {
             {/* Welcome Message */}
             <div className="text-center mt-20">
                 <p className="text-gray-700">
-                    Halo! ini merupakan page untuk admin. jika kamu bukan seorang admin, bisa kembali ke{' '}
+                    Halo! ini merupakan page untuk admin. Jika kamu bukan seorang admin, bisa kembali ke{' '}
                     <Link href="/" className="text-blue-600 hover:text-blue-800 underline">
                         Halaman Utama
                     </Link>
@@ -36,6 +39,7 @@ export default function GuestLayout({ children }) {
                 {children}
             </main>
         </div>
+        </>
     );
 }
 

@@ -20,14 +20,15 @@ createInertiaApp({
     title: (title) => formatPageTitle(title, APP_NAME),
     resolve: async (name) => {
         try {
-            const pages = import.meta.glob("./Pages/**/*.jsx");
+            const pages = import.meta.glob("./Pages/**/*.jsx", { eager: true });
             const page = await resolvePageComponent(
                 `./Pages/${name}.jsx`,
                 pages
             );
 
+            // Set default layouts based on page path
             if (!page.default.layout) {
-                if (name.startsWith("admin/")) {
+                if (name.startsWith("Admin/") || name.startsWith("/Profile")) {
                     page.default.layout = (page) => <AdminLayout>{page}</AdminLayout>;
                 } else if (name.startsWith("Auth/")) {
                     page.default.layout = (page) => <GuestLayout>{page}</GuestLayout>;
@@ -39,7 +40,7 @@ createInertiaApp({
             return page;
         } catch (error) {
             console.error('Page resolution error:', error);
-            // Return the NoPage component for 404 errors
+            // Return a 404 page component
             return import('./Pages/NoPage.jsx');
         }
     },

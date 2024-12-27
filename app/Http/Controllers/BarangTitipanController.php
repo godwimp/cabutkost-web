@@ -56,4 +56,20 @@ class BarangTitipanController extends Controller
             ], 404);
         }
     }
+
+    public function updateStatus(Request $request)
+    {
+        $validated = $request->validate([
+            'id' => 'required|exists:barang_titipan,id',
+            'status' => 'required|in:Diproses,Dijemput,Disimpan,Diambil',
+        ]);
+
+        $barangTitipan = BarangTitipan::findOrFail($validated['id']);
+        $barangTitipan->status = $validated['status'];
+        $barangTitipan->save();
+
+        return redirect()
+            ->back()
+            ->with('message', 'Status barang titipan berhasil diubah');
+    }
 }

@@ -1,70 +1,70 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { useAuth } from '@/contexts/AuthContext';
-import { router, Link } from '@inertiajs/react';
+import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import { useAuth } from "../contexts/AuthContext";
+import { router } from "@inertiajs/react";
+import { AppSidebar } from "@/Components/uiadmin/AppSidebar"; // Ensure this path is correct
+import { SidebarProvider } from "@/Components/uiadmin/Sidebar";
+
+const logo = "/images/logo.png";
 
 export default function AdminLayout({ children }) {
-    const { isAdmin } = useAuth();
+    const auth = useAuth();
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-    if (!isAdmin) {
-        router.push('/login');
+    useEffect(() => {
+        if (!auth || !auth.isAdmin) {
+            router.visit("/login");
+        }
+    }, [auth]);
+
+    if (!auth) {
+        return <div>Loading...</div>;
     }
 
-    return (
-        <div className="min-h-screen bg-gray-100">
-            {/* Admin Navigation */}
-            <nav className="bg-white shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16">
-                        <div className="flex space-x-8">
-                            {/* Laporan Section */}
-                            <Link
-                                href="/admin/laporan-keuangan"
-                                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 hover:text-blue-600"
-                            >
-                                Laporan Keuangan
-                            </Link>
-                            <Link
-                                href="/admin/laporan-penitipan"
-                                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 hover:text-blue-600"
-                            >
-                                Laporan Penitipan
-                            </Link>
-                            <Link
-                                href="/admin/laporan-pindahan"
-                                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 hover:text-blue-600"
-                            >
-                                Laporan Pindahan
-                            </Link>
+    const handleLogout = () => {
+        router.post("/logout");
+    };
 
-                            {/* Management Section */}
-                            <Link
-                                href="/admin/manage-penitipan"
-                                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 hover:text-blue-600"
-                            >
-                                Manage Penitipan
-                            </Link>
-                            <Link
-                                href="/admin/manage-pindahan"
-                                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 hover:text-blue-600"
-                            >
-                                Manage Pindahan
-                            </Link>
+    const handleNavigation = (url) => {
+        router.visit(url);
+    };
+
+    return (
+        <SidebarProvider>
+        <div className="min-h-screen bg-gray-100 flex">
+            <AppSidebar />
+            <div className="flex-1 flex flex-col">
+                <nav className="bg-white shadow-sm h-16">
+                    <div className="h-full px-4 flex items-center justify-between">
+                        <div className="text-xl font-bold">
+                            <button onClick={() => handleNavigation('/dashboard')}>
+                                <img src={logo} alt="Logo" className="h-8" />
+                            </button>
+                        </div>
+                        <div className="relative">
+                            <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none">
+                                <span>{auth.user?.name}</span>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            {isDropdownOpen && (
+                                <div className="absolute right-0 mt-2 w-48 py-2 bg-white rounded-md shadow-xl z-50">
+                                    <button onClick={() => handleNavigation("/profile")} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</button>
+                                    <button onClick={() => handleNavigation("/register")} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Register New Admin</button>
+                                    <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                                </div>
+                            )}
                         </div>
                     </div>
-                </div>
-            </nav>
-
-            {/* Main Content */}
-            <main className="py-10">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    {children}
-                </div>
-            </main>
+                </nav>
+                <main className="py-10 px-8 flex-grow">{children}</main>
+            </div>
         </div>
+        </SidebarProvider>
     );
 }
 
 AdminLayout.propTypes = {
-    children: PropTypes.node.isRequired
+    children: PropTypes.node.isRequired,
 };

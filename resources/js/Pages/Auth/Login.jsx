@@ -1,120 +1,180 @@
-import Checkbox from "@/Components/Checkbox";
-import InputError from "@/Components/InputError";
-import InputLabel from "@/Components/InputLabel";
-import PrimaryButton from "@/Components/PrimaryButton";
-import TextInput from "@/Components/TextInput";
-import GuestLayout from "@/Layouts/GuestLayout";
-import { Head, Link, useForm } from "@inertiajs/react";
+import React, { useEffect, useState } from 'react';
+import { router } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
+import { toast } from 'react-hot-toast';
+import { Button } from "../../Components/uiadmin/Button";
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "../../Components/uiadmin/Form";
+import { Input } from "../../Components/uiadmin/Input";
 
-export default function Login({ status, canResetPassword }) {
+const Login = () => {
     const { data, setData, post, processing, errors, reset } = useForm({
         email: "",
         password: "",
-        remember: false,
     });
+
+    const [validationErrors, setValidationErrors] = useState({});
+
+    useEffect(() => {
+        return () => {
+            reset('password');
+        }
+    }, []);
 
     const submit = (e) => {
         e.preventDefault();
-
-        post(route("login"), {
-            onFinish: () => reset("password"),
+        
+        post('/login', {
+            onSuccess: () => {
+                toast.success("Login berhasil!");
+                router.visit("/dashboard");
+            },
+            onError: (errors) => {
+                if (errors.email || errors.password) {
+                    toast.error("Email atau password salah!");
+                }
+                if (errors.default) {
+                    toast.error("Terjadi kesalahan, silahkan coba lagi!");
+                }
+            },
+            onFinish: () => {
+                reset('password');
+            }
         });
     };
 
-    return (
-        <>
-            <Head title="Log in" />
-            <div className="flex min-h-screen flex-col items-center mt-32 px-2">
-                <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
-                    {status && (
-                        <div className="mb-4 text-sm font-medium text-green-600">
-                            {status}
-                        </div>
-                    )}
+    const validateEmail = (email) => {
+        return String(email)
+            .toLowerCase()
+            .match(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
+            );
+    };
 
-                    <form onSubmit={submit}>
-                        <div className="space-y-6">
+    const handleEmailChange = (e) => {
+        const value = e.target.value;
+        setData("email", value);
+
+        setValidationErrors(prev => {
+            const newErrors = { ...prev };
+            if(value && !validateEmail(value)) {
+                newErrors.email = "Email tidak valid";
+            } else {
+                delete newErrors.email;
+            }
+            return newErrors;
+        });
+    }
+
+    const handlePasswordChange = (e) => {
+        const value = e.target.value;
+        setData("password", value);
+
+        setValidationErrors(prev => {
+            const newErrors = { ...prev };
+            if(value.length < 6) {
+                newErrors.password = "Password minimal 6 karakter";
+            } else {
+                delete newErrors.password;
+            }
+            return newErrors;
+        });
+    }
+
+    const isValid = () => {
+        return validateEmail(data.email) && data.password.length >= 6;
+    };
+
+    return (
+        <div>
+            <div className="p-4 mx-2 md:px-10 md:pt-6">
+                <div className="flex justify-center">
+                    <img
+                        src="/images/logo.png"
+                        alt="Logo"
+                        className="w-14 md:w-20 h-auto mb-2"
+                    />
+                </div>
+                <img
+                    src="/images/blurred.png"
+                    alt="Blurred Circle"
+                    className="hidden md:block absolute top-0 right-0 w-[380px] h-[380px]"
+                />
+                <img
+                    src="/images/blurred2.png"
+                    alt="Blurred Circle"
+                    className="hidden md:block absolute bottom-0 left-0 w-[380px] h-[380px]"
+                />
+                <div className="md:flex md:justify-center md:mt-24 z-10">
+                    <div className="md:items-center md:justify-center md:w-[400px] md:shadow-lg md:p-8 rounded-3xl">
+                        <p className="hidden md:block text-md font-semibold">
+                            Welcome Admin
+                        </p>
+                        <h1 className="font-semibold text-3xl md:text-4xl my-5">
+                            Masuk
+                        </h1>
+                        <p className="md:hidden text-sm text-gray-500 my-5">
+                            Masukkan email dan password kamu
+                        </p>
+                        <form onSubmit={submit} className="space-y-5">
                             <div>
-                                <InputLabel htmlFor="email" value="Email" />
-                                <TextInput
-                                    id="email"
+                                <label className="text-gray-500 text-sm">
+                                    Email
+                                </label>
+                                <Input
                                     type="email"
                                     name="email"
                                     value={data.email}
-                                    className="mt-1 block w-full"
-                                    autoComplete="username"
-                                    isFocused={true}
-                                    onChange={(e) =>
-                                        setData("email", e.target.value)
-                                    }
+                                    onChange={handleEmailChange}
+                                    placeholder="example@gmail.com"
                                 />
-                                <InputError
-                                    message={errors.email}
-                                    className="mt-2"
-                                />
+                                {(validationErrors.email) && (
+                                    <div className="text-red-500 text-sm mt-1">
+                                        {validationErrors.email}
+                                    </div>
+                                )}
                             </div>
-
                             <div>
-                                <InputLabel
-                                    htmlFor="password"
-                                    value="Password"
-                                />
-                                <TextInput
-                                    id="password"
+                                <label className="text-gray-500 text-sm">
+                                    Password
+                                </label>
+                                <Input
                                     type="password"
                                     name="password"
                                     value={data.password}
-                                    className="mt-1 block w-full"
-                                    autoComplete="current-password"
-                                    onChange={(e) =>
-                                        setData("password", e.target.value)
-                                    }
+                                    onChange={handlePasswordChange}
+                                    placeholder="******"
+                                    className={errors.password ? "border-red-500" : ""}
+                                    required
+                                    minLength={6}
                                 />
-                                <InputError
-                                    message={errors.password}
-                                    className="mt-2"
-                                />
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                                <label className="flex items-center">
-                                    <Checkbox
-                                        name="remember"
-                                        checked={data.remember}
-                                        onChange={(e) =>
-                                            setData(
-                                                "remember",
-                                                e.target.checked
-                                            )
-                                        }
-                                    />
-                                    <span className="ms-2 text-sm text-gray-600 m-3">
-                                        Remember me{" "}
-                                    </span>
-                                </label>
-
-                                {canResetPassword && (
-                                    <Link
-                                        href={route("password.request")}
-                                        className="text-sm text-indigo-600 hover:text-indigo-500 m-3" 
-                                    >
-                                        Forgot your password?
-                                    </Link>
+                                {(validationErrors.password) && (
+                                    <div className="text-red-500 text-sm mt-1">
+                                        {validationErrors.password}
+                                    </div>
                                 )}
                             </div>
-
-                            <div className="flex justify-center">
-                                <PrimaryButton
-                                    className="w-full justify-center"
-                                    disabled={processing}
-                                >
-                                    Log in
-                                </PrimaryButton>
-                            </div>
-                        </div>
-                    </form>
+                            <Button
+                                type="submit"
+                                className={`w-full ${
+                                    processing || !isValid() ? 'opacity-70 cursor-not-allowed' : "bg-gray-400"
+                                }`}
+                                disabled={processing || !isValid()}
+                            >
+                                {processing ? "Loading..." : "Masuk"}
+                            </Button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </>
+        </div>
     );
-}
+};
+
+export default Login;

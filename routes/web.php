@@ -3,6 +3,7 @@
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LokasiController;
+use App\Http\Controllers\TrackController;
 use App\Http\Controllers\PengirimController;
 use App\Http\Controllers\PenerimaController;
 use App\Http\Controllers\PenitipController;
@@ -28,6 +29,11 @@ Route::get('/', function () {
 Route::get('/about', function () {
     return Inertia::render('About');
 })->name('about');
+
+// Route ke Rates
+Route::get('/rates', function () {
+    return Inertia::render('Rates');
+})->name('rates');
 
 // ROUTING PENGIRIMAN
 // PENGIRIMAN PAGE
@@ -95,10 +101,14 @@ Route::get('/ringkasanpembayarantitipan', function () {
 })->name('ringkasanpembayarantitipan');
 
 
+// ROUTE UNTUK USER TRACKING
+Route::get('/track', [TrackController::class, 'index'])->name('track.index');
+Route::post('/track/search', [TrackController::class, 'search'])->name('track.search');
+
 // Authentication routes
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
+        return Inertia::render('Admin/Dashboard');
     })->name('dashboard');
 
     Route::controller(ProfileController::class)->group(function () {

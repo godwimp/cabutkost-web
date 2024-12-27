@@ -9,14 +9,14 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Admin\PindahanController;
+use App\Http\Controllers\BarangTitipanController;
+use App\Http\Controllers\PenitipController;
+use App\Http\Controllers\Invoice\InvoiceController;
+use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])
-        ->name('register');
-
-    Route::post('register', [RegisteredUserController::class, 'store']);
-
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
 
@@ -33,6 +33,39 @@ Route::middleware('guest')->group(function () {
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+});
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    // Admin Dashboard
+    Route::get('/dashboard', function () {
+        return Inertia::render('Admin/Dashboard');
+    })->name('admin.dashboard');
+
+    // Pindahan Management
+    Route::get('/pindahan', [PindahanController::class, 'index'])
+        ->name('admin.pindahan');
+    Route::post('/pindahan/update-status', [PindahanController::class, 'updateStatus'])
+        ->name('admin.pindahan.update-status');
+    Route::get('/pindahan/{id}', [PindahanController::class, 'show'])
+        ->name('admin.pindahan.show');
+    
+    // Penitipan Management
+    Route::get('/penitipan', [PenitipController::class, 'index'])
+        ->name('admin.penitipan');
+    Route::post('/penitipan/update-status', [BarangTitipanController::class, 'updateStatus'])
+        ->name('admin.penitipan.update-status');
+
+    // Invoice Management
+    Route::get('/invoice', [InvoiceController::class, 'index'])
+        ->name('admin.invoice.index');
+    Route::get('/invoice/create/{pengirim_id}', [InvoiceController::class, 'create'])
+        ->name('admin.invoice.create');
+    Route::post('/invoice', [InvoiceController::class, 'store'])
+        ->name('admin.invoice.store');
+    Route::get('/invoice/{id}', [InvoiceController::class, 'show'])
+        ->name('admin.invoice.show');
+    Route::get('/invoice/{id}/download', [InvoiceController::class, 'download'])
+        ->name('admin.invoice.download');
 });
 
 Route::middleware('auth')->group(function () {
@@ -52,7 +85,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
 
-    Route::put('password', [PasswordController::class, 'update'])->name('password.update');
+    Route::put('password', [PasswordController::class, 'update'])
+        ->name('password.update');
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');

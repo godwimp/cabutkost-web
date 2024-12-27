@@ -25,8 +25,8 @@ class ErrorBoundary extends React.Component {
             return (
                 <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
-                        <h2 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h2>
-                        <p className="text-gray-600 mb-4">We apologize for the inconvenience. Please try refreshing the page.</p>
+                        <h2 className="text-2xl font-bold text-red-600 mb-4">Terjadi kesalahan</h2>
+                        <p className="text-gray-600 mb-4">Kami meminta maaf terkait kesalahan yang terjadi. Coba untuk refresh page ini</p>
                         <button
                             onClick={() => window.location.reload()}
                             className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
