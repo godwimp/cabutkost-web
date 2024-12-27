@@ -36,19 +36,14 @@ const data = {
             ],
         },
         {
-            title: "Laporan",
+            title: "Invoice",
             url: "#",
             icon: ClipboardList,
             items: [
                 {
-                    title: "Laporan Pengiriman",
-                    url: "/admin/laporan/pengiriman",
-                    description: "Lihat laporan pengiriman barang"
-                },
-                {
-                    title: "Laporan Penitipan",
-                    url: "/admin/laporan/penitipan",
-                    description: "Lihat laporan penitipan barang"
+                    title: "Manage Invoice",
+                    url: "/admin/invoice",
+                    description: "Kelola pesanan invoice"
                 }
             ],
         },

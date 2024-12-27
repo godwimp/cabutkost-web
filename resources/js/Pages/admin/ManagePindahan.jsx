@@ -7,17 +7,19 @@ import { router } from "@inertiajs/react";
 const ManagePindahan = ({ pindahan }) => {
     const [searchTerm, setSearchTerm] = useState("");
 
-    const updateStatus = (e, id) => {
+    const updateStatus = (e, pengirimId) => {
         router.post("/admin/pindahan/update-status", {
-            id: id,
+            pengirim_id: pengirimId,
             status: e.target.value,
         });
     };
 
+    const createInvoice = (pengirimId) => {
+        router.get(`/admin/invoice/create/${pengirimId}`);
+    };
+
     const filteredPindahan = pindahan.filter((p) =>
-        p.pengirim.nama_pengirim
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())
+        p.nama_pengirim.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -43,9 +45,7 @@ const ManagePindahan = ({ pindahan }) => {
                                             type="text"
                                             placeholder="Search"
                                             value={searchTerm}
-                                            onChange={(e) =>
-                                                setSearchTerm(e.target.value)
-                                            }
+                                            onChange={(e) => setSearchTerm(e.target.value)}
                                             className="px-3 w-full focus:outline-none text-sm md:text-sm"
                                         />
                                         <span className="mr-2 md:py-1 text-gray-500 font-medium">
@@ -57,27 +57,13 @@ const ManagePindahan = ({ pindahan }) => {
                             <table className="w-full text-center">
                                 <thead>
                                     <tr className="bg-gray-100">
-                                        <th className="py-3 px-3 text-xs md:text-lg">
-                                            ID Pesanan
-                                        </th>
-                                        <th className="py-3 px-3 text-xs md:text-lg">
-                                            Nama Pelanggan
-                                        </th>
-                                        <th className="py-3 px-3 text-xs md:text-lg">
-                                            Kategori
-                                        </th>
-                                        <th className="hidden md:block py-3 px-3 text-xs md:text-lg">
-                                            Alamat Awal
-                                        </th>
-                                        <th className="py-3 px-3 text-xs md:text-lg">
-                                            Alamat Akhir
-                                        </th>
-                                        <th className="py-3 px-3 text-xs md:text-lg">
-                                            Status
-                                        </th>
-                                        <th className="py-3 px-3 text-xs md:text-lg">
-                                            Aksi
-                                        </th>
+                                        <th className="py-3 px-3 text-xs md:text-lg">ID</th>
+                                        <th className="py-3 px-3 text-xs md:text-lg">Nama Pelanggan</th>
+                                        <th className="py-3 px-3 text-xs md:text-lg">Alamat Awal</th>
+                                        <th className="py-3 px-3 text-xs md:text-lg">Alamat Akhir</th>
+                                        <th className="py-3 px-3 text-xs md:text-lg">Barang</th>
+                                        <th className="py-3 px-3 text-xs md:text-lg">Status</th>
+                                        <th className="py-3 px-3 text-xs md:text-lg">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -87,50 +73,47 @@ const ManagePindahan = ({ pindahan }) => {
                                                 {item.id}
                                             </td>
                                             <td className="py-4 px-0 text-xs md:text-[16px]">
-                                                {item.pengirim.nama_pengirim}
+                                                {item.nama_pengirim}
                                             </td>
                                             <td className="py-4 px-0 text-xs md:text-[16px]">
-                                                {item.kategori}
-                                            </td>
-                                            <td className="hidden md:block py-4 px-0 text-xs md:text-[16px]">
-                                                {item.pengirim.alamat_pengirim}
+                                                {item.alamat_awal}
                                             </td>
                                             <td className="py-4 px-0 text-xs md:text-[16px]">
-                                                {item.penerima.alamat_penerima}
+                                                {item.alamat_akhir}
+                                            </td>
+                                            <td className="py-4 px-0 text-xs md:text-[16px]">
+                                                <ul className="list-disc list-inside">
+                                                    {item.barang.map((b, index) => (
+                                                        <li key={index}>
+                                                            {b.nama_barang} ({b.kategori})
+                                                        </li>
+                                                    ))}
+                                                </ul>
                                             </td>
                                             <td className="py-4 pr-2 text-xs md:text-[16px]">
                                                 <select
                                                     className={`border rounded px-2 py-1 ${item.status_color}`}
                                                     value={item.status}
-                                                    onChange={(e) =>
-                                                        updateStatus(e, item.id)
-                                                    }
+                                                    onChange={(e) => updateStatus(e, item.id)}
                                                 >
-                                                    <option value="Diproses">
-                                                        Diproses
-                                                    </option>
-                                                    <option value="Sedang Diambil">
-                                                        Sedang Diambil
-                                                    </option>
-                                                    <option value="Sedang Dikirim">
-                                                        Sedang Dikirim
-                                                    </option>
-                                                    <option value="Sampai">
-                                                        Sampai
-                                                    </option>
+                                                    <option value="Diproses">Diproses</option>
+                                                    <option value="Sedang Diambil">Sedang Diambil</option>
+                                                    <option value="Sedang Dikirim">Sedang Dikirim</option>
+                                                    <option value="Sampai">Sampai</option>
                                                 </select>
                                             </td>
-                                            <td className="text-xs md:text-lg">
-                                                <button
-                                                    onClick={() =>
-                                                        router.get(
-                                                            `/admin/pindahan/${item.id}`
-                                                        )
-                                                    }
-                                                    className="bg-blue-600 text-white px-4 py-1 rounded"
-                                                >
-                                                    Detail
-                                                </button>
+                                            <td className="py-4 px-0 text-xs md:text-[16px]">
+                                                {!item.has_invoice && (
+                                                    <button
+                                                        onClick={() => createInvoice(item.id)}
+                                                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded"
+                                                    >
+                                                        Buat Invoice
+                                                    </button>
+                                                )}
+                                                {item.has_invoice && (
+                                                    <span className="text-gray-500">Invoice Dibuat</span>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}

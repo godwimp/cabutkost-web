@@ -2,31 +2,37 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Barang;
+use App\Models\Pengirim;
 use Illuminate\Http\Request;
+use Finller\Invoice\Invoice;
 use Inertia\Inertia;
 
 class PindahanController extends Controller
 {
     public function index()
     {
-        $pindahan = Barang::with(['pengirim.penerima'])
+        $pindahan = Pengirim::with(['barang', 'penerima'])
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($barang) {
+            ->map(function ($pengirim) {
+                // Check if invoice exists for this pengirim
+                $hasInvoice = Invoice::where('buyer_information->name', $pengirim->nama_pengirim)->exists();
+                
                 return [
-                    'id' => $barang->id,
-                    'nama_barang' => $barang->nama_barang,
-                    'kategori' => $barang->kategori,
-                    'status' => $barang->status,
-                    'status_color' => $barang->status_color,
-                    'pengirim' => [
-                        'nama_pengirim' => $barang->pengirim->nama_pengirim,
-                        'alamat_pengirim' => $barang->pengirim->alamat_pengirim,
-                    ],
-                    'penerima' => [
-                        'alamat_penerima' => $barang->pengirim->penerima->alamat_penerima ?? null,
-                    ],
+                    'id' => $pengirim->id,
+                    'nama_pengirim' => $pengirim->nama_pengirim,
+                    'alamat_awal' => $pengirim->alamat_pengirim,
+                    'alamat_akhir' => $pengirim->penerima->alamat_penerima ?? null,
+                    'barang' => $pengirim->barang->map(function ($barang) {
+                        return [
+                            'nama_barang' => $barang->nama_barang,
+                            'kategori' => $barang->kategori,
+                            'status' => $barang->status,
+                        ];
+                    }),
+                    'status' => $pengirim->barang->first()?->status ?? 'Diproses',
+                    'status_color' => $pengirim->barang->first()?->status_color ?? 'bg-yellow-100 text-yellow-800',
+                    'has_invoice' => $hasInvoice,
                 ];
             });
 
@@ -38,18 +44,12 @@ class PindahanController extends Controller
     public function updateStatus(Request $request)
     {
         $request->validate([
-            'id' => 'required|exists:barang,id',
-            'status' => 'required|in:' . implode(',', [
-                Barang::STATUS_DIPROSES,
-                Barang::STATUS_SEDANG_DIAMBIL,
-                Barang::STATUS_SEDANG_DIKIRIM,
-                Barang::STATUS_SAMPAI
-            ])
+            'pengirim_id' => 'required|exists:pengirim,id',
+            'status' => 'required|in:Diproses,Sedang Diambil,Sedang Dikirim,Sampai'
         ]);
 
-        $barang = Barang::findOrFail($request->id);
-        $barang->status = $request->status;
-        $barang->save();
+        $pengirim = Pengirim::findOrFail($request->pengirim_id);
+        $pengirim->barang()->update(['status' => $request->status]);
 
         return back()->with('message', 'Status berhasil diperbarui');
     }
